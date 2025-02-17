@@ -22,7 +22,8 @@ WHITELIST_IPS=("199.85.209.85" "199.85.209.109")
 VALIDATED=false
 # === CONFIGURAÇÕES DE VERSÃO ===
 VERSAO_LOCAL="1.0.1"  # Versão atual do script
-URL_SCRIPT="https://pastebin.com/raw/dNYqVtmX"  # Link para o conteúdo do script no Pastebin
+URL_SCRIPT="https://raw.githubusercontent.com/MauroSupera/gerenciador-updater/main/gerenciador_pt.sh"  # Link para o conteúdo do script no GitHub
+
 # Obtém o nome do script atual (ex.: gerenciador.sh)
 SCRIPT_NOME=$(basename "$0")
 SCRIPT_PATH="${BASE_DIR}/${SCRIPT_NOME}"  # Caminho completo do script
@@ -36,7 +37,7 @@ verificar_atualizacoes() {
     echo -e "       VERIFICANDO ATUALIZAÇÕES"
     echo -e "${CYAN}======================================${NC}"
 
-    # Obtém o conteúdo remoto do Pastebin
+    # Obtém o conteúdo remoto do GitHub
     CONTEUDO_REMOTO=$(curl -s --max-time 5 "$URL_SCRIPT")
 
     if [ -z "$CONTEUDO_REMOTO" ]; then
