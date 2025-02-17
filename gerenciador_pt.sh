@@ -21,7 +21,7 @@ WHITELIST_HOSTNAMES=("app.vexufy.com")
 WHITELIST_IPS=("199.85.209.85" "199.85.209.109")
 VALIDATED=false
 # === CONFIGURAÇÕES DE VERSÃO ===
-VERSAO_LOCAL="1.0.2"  # Versão atual do script
+VERSAO_LOCAL="1.0.4"  # Versão atual do script
 URL_SCRIPT="https://raw.githubusercontent.com/MauroSupera/gerenciador-updater/main/gerenciador_pt.sh"  # Link para o conteúdo do script no GitHub
 
 # Obtém o nome do script atual (ex.: gerenciador.sh)
@@ -39,7 +39,6 @@ verificar_atualizacoes() {
 
     # Obtém o conteúdo remoto do GitHub
     CONTEUDO_REMOTO=$(curl -s --max-time 5 "$URL_SCRIPT")
-
     if [ -z "$CONTEUDO_REMOTO" ]; then
         echo -e "${YELLOW}Não foi possível verificar atualizações. Tente novamente mais tarde.${NC}"
         return
@@ -47,7 +46,6 @@ verificar_atualizacoes() {
 
     # Extrai a versão remota do conteúdo
     VERSAO_REMOTA=$(echo "$CONTEUDO_REMOTO" | grep -oP 'VERSAO_LOCAL="\K[0-9]+\.[0-9]+\.[0-9]+')
-
     if [ -z "$VERSAO_REMOTA" ]; then
         echo -e "${YELLOW}Não foi possível extrair a versão do arquivo remoto.${NC}"
         return
@@ -57,19 +55,21 @@ verificar_atualizacoes() {
     echo -e "${CYAN}Versão Disponível: ${GREEN}${VERSAO_REMOTA}${NC}"
 
     # Compara as versões
-    if [ "$VERSAO_REMOTA" != "$VERSAO_LOCAL" ]; then
-        echo -e "${YELLOW}Nova atualização disponível! (${VERSAO_REMOTA})${NC}"
-        echo -e "${YELLOW}Reinicie o servidor ou escolha a opção 'AM - ATUALIZAÇÃO MANUAL' para aplicar a atualização.${NC}"
-    else
+    if [ "$VERSAO_REMOTA" = "$VERSAO_LOCAL" ]; then
         echo -e "${GREEN}Você está usando a versão mais recente do nosso script.${NC}"
+    elif [[ "$VERSAO_REMOTA" > "$VERSAO_LOCAL" ]]; then
+        echo -e "${YELLOW}Nova atualização disponível! (${VERSAO_REMOTA})${NC}"
+        echo -e "${YELLOW}Instalando atualização automaticamente...${NC}"
+        aplicar_atualizacao_automatica
+    else
+        echo -e "${RED}Erro ao atualizar: A versão disponível (${VERSAO_REMOTA}) é menor que a versão atual (${VERSAO_LOCAL}).${NC}"
     fi
 }
-
 # ###########################################
-# Função para aplicar atualizações manuais
+# Função para aplicar atualizações automáticas
 # - Propósito: Baixa a nova versão do script e substitui o atual.
 # ###########################################
-aplicar_atualizacao_manual() {
+aplicar_atualizacao_automatica() {
     echo -e "${CYAN}Baixando a nova versão do script...${NC}"
     curl -s -o "${BASE_DIR}/script_atualizado.sh" "$URL_SCRIPT"
 
@@ -79,7 +79,7 @@ aplicar_atualizacao_manual() {
     fi
 
     echo -e "${CYAN}Substituindo o script atual...${NC}"
-    mv "${BASE_DIR}/script_atualizado.sh" "$BASE_DIR/$SCRIPT_PATH"
+    mv "${BASE_DIR}/script_atualizado.sh" "$SCRIPT_PATH"
 
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}Atualização aplicada com sucesso! Reiniciando o servidor...${NC}"
@@ -90,12 +90,41 @@ aplicar_atualizacao_manual() {
     fi
 }
 
-# === CABEÇALHO DINÂMICO ===
-cabecalho() {
-    clear
-    echo -e "${CYAN}==============================================${NC}"
-    echo -e "${BOLD}${CYAN}          GERENCIADOR DE SISTEMAS           ${NC}"
-    echo -e "${CYAN}==============================================${NC}"
+
+# ###########################################
+# Função para aplicar atualizações manuais
+# - Propósito: Baixa a nova versão do script e substitui o atual.
+# ###########################################
+aplicar_atualizacao_manual() {
+    echo -e "${CYAN}Verificando atualizações manuais...${NC}"
+
+    # Obtém o conteúdo remoto do GitHub
+    CONTEUDO_REMOTO=$(curl -s --max-time 5 "$URL_SCRIPT")
+    if [ -z "$CONTEUDO_REMOTO" ]; then
+        echo -e "${YELLOW}Não foi possível verificar atualizações. Tente novamente mais tarde.${NC}"
+        return
+    fi
+
+    # Extrai a versão remota do conteúdo
+    VERSAO_REMOTA=$(echo "$CONTEUDO_REMOTO" | grep -oP 'VERSAO_LOCAL="\K[0-9]+\.[0-9]+\.[0-9]+')
+    if [ -z "$VERSAO_REMOTA" ]; then
+        echo -e "${YELLOW}Não foi possível extrair a versão do arquivo remoto.${NC}"
+        return
+    fi
+
+    echo -e "${CYAN}Versão Atual: ${GREEN}${VERSAO_LOCAL}${NC}"
+    echo -e "${CYAN}Versão Disponível: ${GREEN}${VERSAO_REMOTA}${NC}"
+
+    # Compara as versões
+    if [ "$VERSAO_REMOTA" = "$VERSAO_LOCAL" ]; then
+        echo -e "${GREEN}Você já está usando a versão mais recente do nosso script.${NC}"
+    elif [[ "$VERSAO_REMOTA" > "$VERSAO_LOCAL" ]]; then
+        echo -e "${YELLOW}Nova atualização disponível! (${VERSAO_REMOTA})${NC}"
+        echo -e "${YELLOW}Aplicando atualização manualmente...${NC}"
+        aplicar_atualizacao_automatica
+    else
+        echo -e "${RED}Erro ao atualizar: A versão disponível (${VERSAO_REMOTA}) é menor que a versão atual (${VERSAO_LOCAL}).${NC}"
+    fi
 }
 
 
@@ -1304,7 +1333,6 @@ gerenciar_ambiente() {
     echo -e "${CYAN}======================================${NC}"
     echo -e "${CYAN}GERENCIANDO AMBIENTE $1${NC}"
     echo -e "${CYAN}======================================${NC}"
-    echo -e "${RED}Esta versão ainda é beta, novas atualizações serão enviadas futuramente, suporte via whatsapp: +258858119033"
     echo -e "${YELLOW}Status do Ambiente: ${INDICADOR_STATUS} (${STATUS})${NC}"
     echo -e "${YELLOW}Uso de CPU: ${CYAN}${CPU_INFO}${NC}"
     echo -e "${YELLOW}Uso de RAM: ${CYAN}${RAM_INFO}${NC}"
