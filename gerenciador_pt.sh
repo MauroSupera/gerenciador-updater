@@ -1304,6 +1304,7 @@ gerenciar_ambiente() {
     echo -e "${CYAN}======================================${NC}"
     echo -e "${CYAN}GERENCIANDO AMBIENTE $1${NC}"
     echo -e "${CYAN}======================================${NC}"
+    echo -e "${RED}Esta versão ainda é beta, novas atualizações serão enviadas futuramente, suporte via whatsapp: +258858119033"
     echo -e "${YELLOW}Status do Ambiente: ${INDICADOR_STATUS} (${STATUS})${NC}"
     echo -e "${YELLOW}Uso de CPU: ${CYAN}${CPU_INFO}${NC}"
     echo -e "${YELLOW}Uso de RAM: ${CYAN}${RAM_INFO}${NC}"
