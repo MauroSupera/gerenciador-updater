@@ -21,7 +21,7 @@ WHITELIST_HOSTNAMES=("app.vexufy.com")
 WHITELIST_IPS=("199.85.209.85" "199.85.209.109")
 VALIDATED=false
 # === CONFIGURAÇÕES DE VERSÃO ===
-VERSAO_LOCAL="1.0.2"  # Versão atual do script
+VERSAO_LOCAL="1.0.1"  # Versão atual do script
 URL_SCRIPT="https://raw.githubusercontent.com/MauroSupera/gerenciador-updater/main/gerenciador_pt.sh"  # Link para o conteúdo do script no GitHub
 
 # Obtém o nome do script atual (ex.: gerenciador.sh)
@@ -86,7 +86,6 @@ aplicar_atualizacao_automatica() {
         echo -e "${GREEN}Atualização aplicada com sucesso! Reiniciando o servidor...${NC}"
         sleep 2
         exec "$SCRIPT_PATH"
-menu_principal
     else
         echo -e "${RED}Erro ao aplicar a atualização.${NC}"
     fi
@@ -125,8 +124,7 @@ aplicar_atualizacao_manual() {
         echo -e "${YELLOW}Nova atualização disponível! (${VERSAO_REMOTA})${NC}"
         echo -e "${YELLOW}Aplicando atualização manualmente...${NC}"
         aplicar_atualizacao_automatica
-        menu_principal
-    else
+ else
         echo -e "${RED}Erro ao atualizar: A versão disponível (${VERSAO_REMOTA}) é menor que a versão atual (${VERSAO_LOCAL}).${NC}"
         menu_principal
     fi
