@@ -21,7 +21,7 @@ WHITELIST_HOSTNAMES=("app.vexufy.com")
 WHITELIST_IPS=("199.85.209.85" "199.85.209.109")
 VALIDATED=false
 # === CONFIGURAÇÕES DE VERSÃO ===
-VERSAO_LOCAL="1.0.2"  # Versão atual do script
+VERSAO_LOCAL="1.0.1"  # Versão atual do script
 URL_SCRIPT="https://raw.githubusercontent.com/MauroSupera/gerenciador-updater/main/gerenciador_pt.sh"  # Link para o conteúdo do script no GitHub
 
 # Obtém o nome do script atual (ex.: gerenciador.sh)
@@ -79,12 +79,13 @@ aplicar_atualizacao_automatica() {
     fi
 
     echo -e "${CYAN}Substituindo o script atual...${NC}"
-    mv "${BASE_DIR}/script_atualizado.sh" "$SCRIPT_PATH"
+    mv "${BASE_DIR}/script_atualizado.sh" "${BASE_DIR}/$SCRIPT_PATH"
 
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}Atualização aplicada com sucesso! Reiniciando o servidor...${NC}"
         sleep 2
         exec "$SCRIPT_PATH"
+        gerenciar_ambiente "$(basename "$AMBIENTE_PATH" | sed 's/ambiente//')"
     else
         echo -e "${RED}Erro ao aplicar a atualização.${NC}"
     fi
@@ -118,12 +119,15 @@ aplicar_atualizacao_manual() {
     # Compara as versões
     if [ "$VERSAO_REMOTA" = "$VERSAO_LOCAL" ]; then
         echo -e "${GREEN}Você já está usando a versão mais recente do nosso script.${NC}"
+        gerenciar_ambiente "$(basename "$AMBIENTE_PATH" | sed 's/ambiente//')"
     elif [[ "$VERSAO_REMOTA" > "$VERSAO_LOCAL" ]]; then
         echo -e "${YELLOW}Nova atualização disponível! (${VERSAO_REMOTA})${NC}"
         echo -e "${YELLOW}Aplicando atualização manualmente...${NC}"
         aplicar_atualizacao_automatica
+        gerenciar_ambiente "$(basename "$AMBIENTE_PATH" | sed 's/ambiente//')"
     else
         echo -e "${RED}Erro ao atualizar: A versão disponível (${VERSAO_REMOTA}) é menor que a versão atual (${VERSAO_LOCAL}).${NC}"
+        gerenciar_ambiente "$(basename "$AMBIENTE_PATH" | sed 's/ambiente//')"
     fi
 }
 
@@ -808,6 +812,7 @@ remover_bot() {
             # Verifica se o diretório está vazio após a remoção
             if [ -z "$(ls -A "$AMBIENTE_PATH")" ]; then
                 echo -e "${GREEN}Bot removido com sucesso.${NC}"
+                gerenciar_ambiente "$(basename "$AMBIENTE_PATH" | sed 's/ambiente//')"
                 
                 # Verifica se foi chamada por verificar_instalacao_bot
                 if [ "$CHAMADA_VERIFICAR_INSTALACAO" = false ]; then
