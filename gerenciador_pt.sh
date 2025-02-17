@@ -75,6 +75,7 @@ aplicar_atualizacao_automatica() {
 
     if [ $? -ne 0 ]; then
         echo -e "${RED}Erro ao baixar a nova versão do script.${NC}"
+        menu_principal
         return
     fi
 
@@ -85,7 +86,7 @@ aplicar_atualizacao_automatica() {
         echo -e "${GREEN}Atualização aplicada com sucesso! Reiniciando o servidor...${NC}"
         sleep 2
         exec "$SCRIPT_PATH"
-        gerenciar_ambiente "$(basename "$AMBIENTE_PATH" | sed 's/ambiente//')"
+menu_principal
     else
         echo -e "${RED}Erro ao aplicar a atualização.${NC}"
     fi
@@ -119,15 +120,15 @@ aplicar_atualizacao_manual() {
     # Compara as versões
     if [ "$VERSAO_REMOTA" = "$VERSAO_LOCAL" ]; then
         echo -e "${GREEN}Você já está usando a versão mais recente do nosso script.${NC}"
-        gerenciar_ambiente "$(basename "$AMBIENTE_PATH" | sed 's/ambiente//')"
+        menu_principal
     elif [[ "$VERSAO_REMOTA" > "$VERSAO_LOCAL" ]]; then
         echo -e "${YELLOW}Nova atualização disponível! (${VERSAO_REMOTA})${NC}"
         echo -e "${YELLOW}Aplicando atualização manualmente...${NC}"
         aplicar_atualizacao_automatica
-        gerenciar_ambiente "$(basename "$AMBIENTE_PATH" | sed 's/ambiente//')"
+        menu_principal
     else
         echo -e "${RED}Erro ao atualizar: A versão disponível (${VERSAO_REMOTA}) é menor que a versão atual (${VERSAO_LOCAL}).${NC}"
-        gerenciar_ambiente "$(basename "$AMBIENTE_PATH" | sed 's/ambiente//')"
+        menu_principal
     fi
 }
 
