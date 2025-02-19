@@ -21,7 +21,7 @@ WHITELIST_HOSTNAMES=("app.vexufy.com")
 WHITELIST_IPS=("199.85.209.85" "199.85.209.109")
 VALIDATED=false
 # === CONFIGURAÇÕES DE VERSÃO ===
-VERSAO_LOCAL="1.0.3"  # Versão atual do script
+VERSAO_LOCAL="1.0.2"  # Versão atual do script
 URL_SCRIPT="https://raw.githubusercontent.com/MauroSupera/gerenciador-updater/main/gerenciador_pt.sh"  # Link para o conteúdo do script no GitHub
 
 # Obtém o nome do script atual (ex.: gerenciador.sh)
@@ -649,7 +649,7 @@ listar_bots() {
     if [ "$LINGUA" = "portugues" ]; then
         BOTS=(
             "BLACK BOT - https://github.com/MauroSupera/blackbot.git"
-            "ZERO TWO BOT - https://github.com/Otakump4/Zero-Two-Free"
+            "ZERO TWO BOT - https://github.com/MauroSupera/Zero-Two-Free"
             "YOSHINO BOT - https://github.com/MauroSupera/yoshinobot.git"
             "MIKASA ASCENDANCY V3 - https://github.com/maurogashfix/MikasaAscendancyv3.git"
             "INATSUKI BOT - https://github.com/MauroSupera/inatsukibot.git"
