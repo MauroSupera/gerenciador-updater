@@ -21,7 +21,7 @@ WHITELIST_HOSTNAMES=("app.vexufy.com")
 WHITELIST_IPS=("199.85.209.85" "199.85.209.109")
 VALIDATED=false
 # === CONFIGURAÇÕES DE VERSÃO ===
-VERSAO_LOCAL="1.0.2"  # Versão atual do script
+VERSAO_LOCAL="1.0.3"  # Versão atual do script
 URL_SCRIPT="https://raw.githubusercontent.com/MauroSupera/gerenciador-updater/refs/heads/main/pt/p38/gerenciador_pt.sh"  # Link para o conteúdo do script no GitHub
 
 # Obtém o nome do script atual (ex.: gerenciador.sh)
@@ -648,7 +648,7 @@ listar_bots() {
 
     if [ "$LINGUA" = "portugues" ]; then
         BOTS=(
-            "ZERO TWO BOT - https://github.com/Otakump4/Zero-Two-Free"
+            "MORY BOT NOVO ATUALIZADO COM BOTOES - https://github.com/MauroSupera/morybot.git"
             "BLACK BOT - https://github.com/MauroSupera/blackbot.git"
             "YOSHINO BOT - https://github.com/MauroSupera/yoshinobot.git"
             "MIKASA ASCENDANCY V3 - https://github.com/maurogashfix/MikasaAscendancyv3.git"
@@ -1345,6 +1345,7 @@ gerenciar_ambiente() {
     echo -e "${CYAN}======================================${NC}"
     echo -e "${CYAN}GERENCIANDO AMBIENTE $1${NC}"
     echo -e "${CYAN}======================================${NC}"
+    echo -e "${RED}BOT NOVO DISPONIVEL COM BOTOES MORY BOT"
     echo -e "${YELLOW}Status do Ambiente: ${INDICADOR_STATUS} (${STATUS})${NC}"
     echo -e "${YELLOW}Uso de CPU: ${CYAN}${CPU_INFO}${NC}"
     echo -e "${YELLOW}Uso de RAM: ${CYAN}${RAM_INFO}${NC}"
