@@ -21,7 +21,7 @@ WHITELIST_HOSTNAMES=("app.vexufy.com")
 WHITELIST_IPS=("199.85.209.85" "199.85.209.109")
 VALIDATED=false
 # === CONFIGURAÇÕES DE VERSÃO ===
-VERSAO_LOCAL="1.0.4"  # Versão atual do script
+VERSAO_LOCAL="1.0.5"  # Versão atual do script
 URL_SCRIPT="https://raw.githubusercontent.com/MauroSupera/gerenciador-updater/refs/heads/main/pt/p5/gerenciador_pt.sh"  # Link para o conteúdo do script no GitHub
 
 # Obtém o nome do script atual (ex.: gerenciador.sh)
@@ -994,13 +994,24 @@ iniciar_bot() {
             ;;
         5)
             echo -e "${YELLOW}Ativando bot em segundo plano...${NC}"
-            COMANDO="npm start"
-            nohup sh -c "cd $AMBIENTE_PATH && $COMANDO" > "${AMBIENTE_PATH}/nohup.out" 2>&1 &
-            echo "$COMANDO" > "${AMBIENTE_PATH}/.session"
-            atualizar_status "$AMBIENTE_PATH" "ON"
-            echo -e "${GREEN}Bot ativado em segundo plano com sucesso!${NC}"
-            gerenciar_ambiente "$(basename "$AMBIENTE_PATH" | sed 's/ambiente//')"
-            return
+COMANDO="npm start"
+# Inicia o processo em segundo plano
+nohup sh -c "cd $AMBIENTE_PATH && $COMANDO" > "${AMBIENTE_PATH}/nohup.out" 2>&1 &
+
+# Salva o PID do processo em segundo plano
+PID=$!
+echo "$COMANDO" > "${AMBIENTE_PATH}/.session"
+echo "$PID" > "${AMBIENTE_PATH}/.pid"  # Salva o PID para controle posterior
+atualizar_status "$AMBIENTE_PATH" "ON"
+echo -e "${GREEN}Bot ativado em segundo plano com sucesso! (PID: $PID)${NC}"
+
+# Aguarda confirmação do usuário antes de continuar
+echo -e "${CYAN}Pressione Enter para voltar ao menu...${NC}"
+read
+
+# Volta para o menu de gerenciamento
+gerenciar_ambiente "$(basename "$AMBIENTE_PATH" | sed 's/ambiente//')"
+return
             ;;
         0)
             gerenciar_ambiente "$(basename "$AMBIENTE_PATH" | sed 's/ambiente//')"
