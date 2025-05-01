@@ -20,7 +20,7 @@ CIRCLE_OFF='○' # Círculo vazio para OFF
 
 # === CONFIGURAÇÕES PRINCIPAIS ===
 BASE_DIR="/home/container"  # Diretório base onde os ambientes serão criados.
-NUM_AMBIENTES=4 # Número de ambientes que serão configurados.
+NUM_AMBIENTES=5 # Número de ambientes que serão configurados.
 TERMS_FILE="${BASE_DIR}/termos_accepted.txt"  # Caminho do arquivo que indica a aceitação dos termos.
 NOMES_ARQUIVO="${BASE_DIR}/nome_ambientes.json"  # Arquivo que armazena os nomes dos ambientes
 BACKUP_NUM_AMBIENTES="${BASE_DIR}/num_ambientes_backup.txt"  # Arquivo para backup do número de ambientes
@@ -31,11 +31,11 @@ WHITELIST_IPS=("199.85.209.85" "199.85.209.109")
 VALIDATED=false
 # === CONFIGURAÇÕES DE VERSÃO ===
 VERSAO_LOCAL="1.0.4"  # Versão atual do script
-URL_SCRIPT="https://raw.githubusercontent.com/MauroSupera/gerenciador-updater/refs/heads/main/pt/p5/gerenciador_pt.sh"  # Link para o conteúdo do script no GitHub
+URL_SCRIPT="https://raw.githubusercontent.com/MauroSupera/manager/refs/heads/main/gerenciador_pt.sh"  # Link para o conteúdo do script no GitHub
 
 # Obtém o nome do script atual (ex.: gerenciador.sh)
 SCRIPT_NOME=$(basename "$0")
-SCRIPT_PATH="${BASE_DIR}/${SCRIPT_NOME}"  # Caminho completo do script
+SCRIPT_PATH="$0"  # Caminho absoluto do script atual
 
 # === CABEÇALHO DINÂMICO ===
 cabecalho() {
@@ -1535,7 +1535,9 @@ menu_principal() {
     echo -e "${CYAN}==============================================${NC}"
 
     # Exibe os ambientes configurados dinamicamente
-    echo -e "${RED} ATUALIZAÇÃO: OPÇÃO 2 Iniciar Bot depois 5 foi atualizada"
+    echo -e "${RED} ATUALIZAÇÃO: OPÇÃO 2 - Iniciar Bot Iniciar Bot depois 5 foi atualizada"
+        echo -e "${GREEN} ATUALIZAÇÃO: Novas funçōes: Nomear Ambientes, Adicionar Ambientes e Remover Animações foram adicionadas no menu principal."
+
     for i in $(seq 1 $NUM_AMBIENTES); do
         AMBIENTE_PATH="${BASE_DIR}/ambiente${i}"
     STATUS=$(recuperar_status "$AMBIENTE_PATH")
@@ -1817,8 +1819,10 @@ adicionar_ambiente() {
             fi
         done
         
-        # Atualiza a variável global e o script
+        # Atualiza a variável global
         NUM_AMBIENTES=$NOVO_NUM_AMBIENTES
+        
+        # Atualiza o valor no arquivo principal
         atualizar_num_ambientes_no_script
         
         echo -e "${GREEN}${CHECK_MARK} Ambientes adicionados com sucesso!${NC}"
@@ -2024,6 +2028,8 @@ remover_ambientes() {
         # Apenas atualiza o número total, sem reorganizar
         NOVO_NUM_AMBIENTES=$(find "$BASE_DIR" -maxdepth 1 -type d -name "ambiente*" | wc -l)
         NUM_AMBIENTES=$NOVO_NUM_AMBIENTES
+        
+        # Atualiza o valor no arquivo do script
         atualizar_num_ambientes_no_script
         
         echo -e "${YELLOW}Número total de ambientes atualizado: ${CYAN}$NUM_AMBIENTES${NC}"
@@ -2081,6 +2087,8 @@ reorganizar_ambientes() {
     
     # Atualiza o número total de ambientes
     NUM_AMBIENTES=$((NOVO_INDICE - 1))
+    
+    # Atualiza o valor no arquivo do script
     atualizar_num_ambientes_no_script
     
     echo -e "${GREEN}${CHECK_MARK} Ambientes reorganizados com sucesso!${NC}"
@@ -2092,8 +2100,35 @@ reorganizar_ambientes() {
 # - Propósito: Atualiza a variável NUM_AMBIENTES no arquivo do script.
 # ###########################################
 atualizar_num_ambientes_no_script() {
-    # Não modifica o arquivo do script, apenas a variável em memória
-    echo -e "${YELLOW}O número de ambientes foi atualizado para ${CYAN}$NUM_AMBIENTES${NC}.${NC}"
+    # Certifica-se de que o caminho do script está correto
+    if [ ! -f "$SCRIPT_PATH" ]; then
+        echo -e "${RED}Erro: Não foi possível encontrar o arquivo do script em $SCRIPT_PATH${NC}"
+        # Tenta encontrar o script no diretório base
+        if [ -f "${BASE_DIR}/${SCRIPT_NOME}" ]; then
+            SCRIPT_PATH="${BASE_DIR}/${SCRIPT_NOME}"
+            echo -e "${YELLOW}Usando caminho alternativo: $SCRIPT_PATH${NC}"
+        else
+            echo -e "${RED}Não foi possível encontrar o script. A atualização do número de ambientes falhou.${NC}"
+            return 1
+        fi
+    fi
+    
+    # Faz backup do script antes de modificar
+    cp "$SCRIPT_PATH" "${SCRIPT_PATH}.bak"
+    
+    # Atualiza a variável NUM_AMBIENTES no arquivo do script
+    sed -i "s/^NUM_AMBIENTES=.*$/NUM_AMBIENTES=$NUM_AMBIENTES # Número de ambientes que serão configurados./" "$SCRIPT_PATH"
+    
+    # Verifica se a alteração foi feita com sucesso
+    if grep -q "NUM_AMBIENTES=$NUM_AMBIENTES" "$SCRIPT_PATH"; then
+        echo -e "${GREEN}O número de ambientes foi atualizado para ${CYAN}$NUM_AMBIENTES${NC} no arquivo principal.${NC}"
+        return 0
+    else
+        echo -e "${RED}Falha ao atualizar o número de ambientes no arquivo principal.${NC}"
+        # Restaura o backup se a alteração falhou
+        mv "${SCRIPT_PATH}.bak" "$SCRIPT_PATH"
+        return 1
+    fi
 }
 # ###########################################
 # Função para gerenciar as animações iniciais
@@ -2307,8 +2342,40 @@ restaurar_num_ambientes() {
     fi
 }
 
+# ###########################################
+# Função para verificar consistência entre diretórios e valor NUM_AMBIENTES
+# - Propósito: Garante que o valor NUM_AMBIENTES corresponda ao número real de pastas de ambientes
+# ###########################################
+verificar_consistencia_ambientes() {
+    echo -e "${YELLOW}Verificando consistência do número de ambientes...${NC}"
+    
+    # Conta quantos diretórios de ambiente existem realmente
+    PASTAS_EXISTENTES=$(find "$BASE_DIR" -maxdepth 1 -type d -name "ambiente*" | wc -l)
+    
+    if [ "$PASTAS_EXISTENTES" -ne "$NUM_AMBIENTES" ]; then
+        echo -e "${YELLOW}Detectada inconsistência no número de ambientes!${NC}"
+        echo -e "${YELLOW}Valor atual no script: ${CYAN}$NUM_AMBIENTES${NC}"
+        echo -e "${YELLOW}Pastas realmente existentes: ${CYAN}$PASTAS_EXISTENTES${NC}"
+        
+        echo -e "${YELLOW}Atualizando o valor de NUM_AMBIENTES para corresponder à realidade...${NC}"
+        NUM_AMBIENTES=$PASTAS_EXISTENTES
+        atualizar_num_ambientes_no_script
+        
+        echo -e "${GREEN}Consistência restaurada. O script agora usará o valor correto: ${CYAN}$NUM_AMBIENTES${NC}"
+        
+        # Reinicia o script para usar o novo valor
+        echo -e "${YELLOW}Reiniciando o script para aplicar as alterações...${NC}"
+        sleep 2
+        exec "$SCRIPT_PATH"
+    else
+        echo -e "${GREEN}Número de ambientes está consistente: ${CYAN}$NUM_AMBIENTES${NC}"
+    fi
+}
+
 # Execução principal
 # Verifica se existe backup do número de ambientes e o restaura se necessário
 restaurar_num_ambientes
+# Verifica a consistência entre as pastas existentes e o valor NUM_AMBIENTES
+verificar_consistencia_ambientes
 execucao_inicial
 #verificar_whitelist
